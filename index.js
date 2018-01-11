@@ -16,8 +16,21 @@ class Customer {
     }
     this.id = ++customerId
     store.customers.push(this)
+    this.mealList = []
+    this.delList = []
+  }
+  meals() {
+    return this.mealList
+  }
+  deliveries() {
+    return this.delList
   }
 
+  totalSpent() {
+    return store.meals.filter(meal => {
+      return meal.customerId === this.id
+    })
+  }
 }
 
 class Meal {
@@ -26,6 +39,19 @@ class Meal {
     this.price = price
     this.id = ++mealId
     store.meals.push(this)
+    this.delList = []
+    this.custList = []
+  }
+  static byPrice() {
+    return store.meals.sort(function (a,b) {
+        return b.price - a.price
+    })
+  }
+  deliveries() {
+    return this.delList
+  }
+  customers() {
+    return this.custList
   }
 }
 
@@ -33,16 +59,27 @@ class Meal {
 class Delivery {
   constructor(meal, customer) {
     if (meal) {
-      this.meal = meal
+      this.mealx = meal
       this.mealId = meal.id
     }
     if (customer) {
-      this.customer = customer
+      this.customerx = customer
       this.customerId = customer.id
+    }
+    if (meal && customer) {
+      customer.mealList.push(meal)
+      customer.delList.push(this)
+      meal.custList.push(customer)
+      meal.delList.push(this)
     }
     this.id = ++deliveryId
     store.deliveries.push(this)
-
+  }
+  meal() {
+    return this.mealx
+  }
+  customer() {
+    return this.customerx
   }
 }
 

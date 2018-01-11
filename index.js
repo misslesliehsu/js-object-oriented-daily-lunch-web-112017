@@ -13,6 +13,7 @@ class Customer {
     if (employer) {
       this.employer = employer
       this.employerId = employer.id
+      employer.employeeList.push(this)
     }
     this.id = ++customerId
     store.customers.push(this)
@@ -27,9 +28,9 @@ class Customer {
   }
 
   totalSpent() {
-    return store.meals.filter(meal => {
-      return meal.customerId === this.id
-    })
+    let total = 0
+    this.mealList.forEach(function(beef){total += beef.price})
+    return total
   }
 }
 
@@ -65,12 +66,18 @@ class Delivery {
     if (customer) {
       this.customerx = customer
       this.customerId = customer.id
+      if (customer.employer){
+        customer.employer.delivList.push(this)
+      }
     }
     if (meal && customer) {
       customer.mealList.push(meal)
       customer.delList.push(this)
       meal.custList.push(customer)
       meal.delList.push(this)
+      if (customer.employer){
+        customer.employer.mealList.push(meal)
+      }
     }
     this.id = ++deliveryId
     store.deliveries.push(this)
@@ -88,6 +95,33 @@ class Employer {
     this.name = name
     this.id = ++employerId
     store.employers.push(this)
+    this.employeeList = []
+    this.delivList = []
+    this.mealList = []
+  }
+
+  employees() {
+    return this.employeeList
+  }
+
+  deliveries() {
+    return this.delivList
+  }
+
+  meals() {
+    return [...new Set(this.mealList)]
+  }
+
+  mealTotals() {
+    //create object, keys = meal.id's, values = price * # of occurences
+    const counts = {}
+    for (let i = 0; i < this.mealList.length; i++) {
+      let meal = this.mealList[i]
+
+      if (counts.hasOwnProperty(meal.id)) {counts[meal.id]++}
+      else {counts[meal.id] = 1}
+    }
+    return counts
   }
 
 }
